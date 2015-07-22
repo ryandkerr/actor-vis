@@ -15,21 +15,19 @@ def make_soup(url):
   s = BeautifulSoup(html, "lxml")
   return s
 
-soup = make_soup(tom_hanks)
+def get_movie_links(actor_url):
+    soup = make_soup(actor_url)
+    credits = soup.find_all("div", id=re.compile("^actor-"))
+    movies = []
+    for credit in credits:
+        movie = True
+        for n in not_movies:
+            if (movie == False) or (re.search(n, credit.get_text()) != None):
+                movie = False
+        if movie:
+            m = credit.find("a", href=re.compile("/title/")).get("href")
+            movies.append("www.imdb.com" + m)
+    return movies
 
-credits = soup.find_all("div", id=re.compile("^actor-"))
-# .find("div", "filmo-category-section")
 
-movies = []
-for credit in credits:
-    movie = True
-    for n in not_movies:
-        if (movie == False) or (re.search(n, credit.get_text()) != None):
-            movie = False
-    if movie:
-        movies.append(credit)
-
-
-
-# short = re.search("(TV Short)", movies[5].get_text()) != None
-
+tom_movies = get_movie_links(tom_hanks)
