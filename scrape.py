@@ -26,8 +26,11 @@ def get_movie_links(actor_url):
                 movie = False
         if movie:
             m = credit.find("a", href=re.compile("/title/")).get("href")
-            movies.append("www.imdb.com" + m)
+            movies.append("http://www.imdb.com" + m)
     return movies
 
-
 tom_movies = get_movie_links(tom_hanks)
+
+for i, movie_link in enumerate(tom_movies):
+    with open("data/tom_hanks" + str(i) + ".txt", "wb") as f:
+        f.write(urlopen(movie_link).read())
