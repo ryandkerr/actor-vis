@@ -16,9 +16,10 @@ def make_soup(file_path):
 
 tom0 = make_soup(test_file)
 
-title = tom0.find("span", itemprop="name").get_text()
-rating = tom0.find("span", itemprop="ratingValue").get_text()
-year = tom0.find("meta", itemprop="datePublished").get("content")
-genres = tom0.find_all("span", itemprop="genre")
+t = tom0.find("span", itemprop="name").get_text()
+r = tom0.find("span", itemprop="ratingValue").get_text()
+d = tom0.find("meta", itemprop="datePublished").get("content")
+g = tom0.find_all("span", itemprop="genre")
+g = map(lambda x:x.get_text(), g)
 
-# apply the alpha-map technique to convert to .get_text
+record = {"title":t, "rating":r, "date":d, "genres":[genre for genre in g]}
