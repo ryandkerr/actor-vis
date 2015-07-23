@@ -1,14 +1,17 @@
 # scrape.py
 # Ryan Kerr
 # scraping IMDB for actor profiles
-
 from bs4 import BeautifulSoup
 from urllib2 import urlopen
 import re
 
-
-tom_hanks = "http://www.imdb.com/name/nm0000158/?ref_=nv_sr_1"
+# classifiers for non-movies, not included in scraping
 not_movies = ["filming", "pre-production", "post-production", "TV", "Short", "Game"]
+
+# define new ones for each actor
+actor_page = "http://www.imdb.com/name/nm0000158/?ref_=nv_sr_1"
+actor_name = "tom_hanks"
+
 
 def make_soup(url):
   html = urlopen(url).read()
@@ -29,8 +32,8 @@ def get_movie_links(actor_url):
             movies.append("http://www.imdb.com" + m)
     return movies
 
-tom_movies = get_movie_links(tom_hanks)
+actor_movies = get_movie_links(actor_page)
 
-for i, movie_link in enumerate(tom_movies):
-    with open("data/tom_hanks" + str(i) + ".txt", "wb") as f:
+for i, movie_link in enumerate(actor_movies):
+    with open("data/"+actor_name+str(i)+".txt", "wb") as f:
         f.write(urlopen(movie_link).read())
