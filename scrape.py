@@ -10,7 +10,7 @@ not_movies = ["filming", "pre-production", "post-production", "TV", "Short", "Ga
 
 # define new ones for each actor
 actor_page = "http://www.imdb.com/name/nm0000158/?ref_=nv_sr_1"
-actor_name = "tom_hanks"
+actor_name = "Tom Hanks"
 
 
 def make_soup(url):
