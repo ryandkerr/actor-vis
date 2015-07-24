@@ -19,17 +19,20 @@ def make_soup(file_path):
 
 tom0 = make_soup(test_file)
 
-t = tom0.find("span", itemprop="name").get_text()
-r = tom0.find("span", itemprop="ratingValue").get_text()
-d = tom0.find("meta", itemprop="datePublished").get("content")
-g = tom0.find_all("span", itemprop="genre")
-g = map(lambda x:x.get_text(), g)
+title = tom0.find("span", itemprop="name").get_text()
+rating = float(tom0.find("span", itemprop="ratingValue").get_text())
+date = tom0.find("meta", itemprop="datePublished").get("content")
+genres = tom0.find_all("span", itemprop="genre")
+genres = map(lambda x:x.get_text(), genres)
 stars = tom0.find("div", itemprop="actors").find_all("span", "itemprop")
 stars = map(lambda x:x.get_text(strip=True), stars)
-s = True if actor_name in stars else False
+star = True if actor_name in stars else False
+gross = tom0.find("h4", text="Gross:").next_sibling.strip()
 
 
-record = {"title":t, "rating":r, "date":d, "genres":[genre for genre in g]}
+record = {"title":title, "rating":rating, "date":date,
+          "genres":[genre for genre in genres], "star":star, "gross":gross}
+
 
 # for filename in os.listdir("data"):
 #   soup = make_soup(filename)
