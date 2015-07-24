@@ -6,10 +6,8 @@ from bs4 import BeautifulSoup
 import os
 import json
 
+# needed for checking if actor is star
 actor_name = "Tom Hanks"
-
-
-test_file = "data/tom_hanks0.txt"
 
 def make_soup(file_path):
   with open(file_path, "rb") as f:
@@ -17,27 +15,28 @@ def make_soup(file_path):
     s = BeautifulSoup(html, "lxml")
     return s
 
-tom0 = make_soup(test_file)
 
-title = tom0.find("span", itemprop="name").get_text()
-rating = float(tom0.find("span", itemprop="ratingValue").get_text())
-date = tom0.find("meta", itemprop="datePublished").get("content")
-genres = tom0.find_all("span", itemprop="genre")
-genres = map(lambda x:x.get_text(), genres)
-stars = tom0.find("div", itemprop="actors").find_all("span", "itemprop")
-stars = map(lambda x:x.get_text(strip=True), stars)
-star = True if actor_name in stars else False
-gross = tom0.find("h4", text="Gross:").next_sibling.strip()
+movies = []
+for filename in os.listdir("data"):
+  print(filename)
+  soup = make_soup("data/" + filename)
+  title = soup.find("span", itemprop="name").get_text()
+  rating = float(soup.find("span", itemprop="ratingValue").get_text())
+  date = soup.find("meta", itemprop="datePublished").get("content")
+  genres = soup.find_all("span", itemprop="genre")
+  genres = map(lambda x:x.get_text(), genres)
+  stars = soup.find("div", itemprop="actors").find_all("span", "itemprop")
+  stars = map(lambda x:x.get_text(strip=True), stars)
+  star = True if actor_name in stars else False
+  gross = ""
+  try: 
+    gross = soup.find("h4", text="Gross:").next_sibling.strip() 
+  except: 
+    gross = "unknown"
+  record = {"title":title, "rating":rating, "date":date,
+            "genres":[genre for genre in genres], "star":star, "gross":gross}
+  movies.append(record)
 
-
-record = {"title":title, "rating":rating, "date":date,
-          "genres":[genre for genre in genres], "star":star, "gross":gross}
-
-
-# for filename in os.listdir("data"):
-#   soup = make_soup(filename)
-#   t = soup.find("span", itemprop="name").get_text()
-#   r = soup.find("span", itemprop="ratingValue").get_text()
-#   d = soup.find("meta", itemprop="datePublished").get("content")
-#   g = soup.find_all("span", itemprop="genre")
-#   g = map(lambda x:x.get_text(), g)
+j = json.dumps(movies)
+with open("export/tom_hanks.json", "w") as export:
+  print >> export, j
