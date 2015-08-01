@@ -4,14 +4,14 @@
   <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="http://d3js.org/queue.v1.min.js"></script>
-  <script type="stylesheet", src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"></script>
+  <script type="stylesheet" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"></script>
 
 </head>
 
 <body>
 <div class="container">
   <div class="row">
-    <div class= "row-md-6" id="actor_vis"></div>
+    <div class= "col-md-6" id="actor_vis"></div>
   </div>
 </div>
 
@@ -20,19 +20,15 @@ var TOM;
 var SELECTED_DATA;
 var SVG_SIZE = [500, 500];
 
-var classList = function(data) {
-  var CLASSES = [];
-  data.forEach(function(d) {
-    CLASSES.push(d.course);
-  });
-  var selected = document.getElementById("classes");
-  for(i = 0; i < CLASSES.length; i++) {
-    var opt = document.createElement('option');
-    // TODO: if class == cs50 make default
-    opt.innerHTML = CLASSES[i];
-    opt.value = CLASSES[i];
-    selected.appendChild(opt);
+
+// change dates from "YYYY-MM-DD" to js date objects
+var parse_dates = function(data) {
+  var copy = data;
+  for (var i in data) {
+    d = data[i].date.replace(/-/g, "/");
+    data[i].date = Date.parse(d);
   }
+  return(copy);
 };
 
 var updateData = function() {
@@ -40,12 +36,11 @@ var updateData = function() {
   
   // pass on to next step
   actor_layout(TOM);
-}
+};
 
 var actor_layout = function(data) {
-  console.log(data)
-}
-
+  console.log(data);
+};
 
 var startHere = function() {
   queue()
@@ -55,18 +50,19 @@ var startHere = function() {
   function initVis(error, tom) {
     if (!error) {
       TOM = tom;
+      SELECTED_DATA = parse_dates(tom);
 
       d3.select("#actor_vis").append("svg")
        .attr("id", "cloud_svg")
        .attr("width", SVG_SIZE[0])
-       .attr("height", SVG_SIZE[1])
+       .attr("height", SVG_SIZE[1]);
       
       updateData();
     } else {
       console.log("error loading data");
     }
   }
-}
+};
 
 startHere();
 
