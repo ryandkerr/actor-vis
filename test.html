@@ -4,21 +4,36 @@
   <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="http://d3js.org/queue.v1.min.js"></script>
-  <script type="stylesheet" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"></script>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<style>
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+</style>
 
 </head>
 
 <body>
 <div class="container">
   <div class="row">
-    <div class= "col-md-6" id="actor_vis"></div>
+    <div class= "col-sm-12" id="actor_vis"></div>
   </div>
 </div>
 
 <script>
+var actorSvg;
 var TOM;
 var SELECTED_DATA;
-var SVG_SIZE = [500, 500];
+var SVG_SIZE = [700, 400];
+var dateScale;
 
 
 // change dates from "YYYY-MM-DD" to js date objects
@@ -33,7 +48,22 @@ var parse_dates = function(data) {
 
 var updateData = function() {
   // TODO: change these values based on drop-down
-  
+  var maxDay = Math.max.apply(Math, SELECTED_DATA.map(function(d) { 
+    return d.date }));
+  var minDay = Math.min.apply(Math, SELECTED_DATA.map(function(d) { 
+    return d.date }));
+  dateScale = d3.time.scale()
+                      .domain([minDay, maxDay])
+                      .range([15, SVG_SIZE[0] - 15]);
+  var xAxis = d3.svg.axis()
+                     .scale(dateScale)
+                     .ticks(20);
+
+  actorSvg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(0," + (SVG_SIZE[1] - 25) + ")")
+    .call(xAxis);
+
   // pass on to next step
   actor_layout(TOM);
 };
@@ -52,10 +82,10 @@ var startHere = function() {
       TOM = tom;
       SELECTED_DATA = parse_dates(tom);
 
-      d3.select("#actor_vis").append("svg")
-       .attr("id", "cloud_svg")
-       .attr("width", SVG_SIZE[0])
-       .attr("height", SVG_SIZE[1]);
+      actorSvg = d3.select("#actor_vis").append("svg")
+                    .attr("id", "cloud_svg")
+                    .attr("width", SVG_SIZE[0])
+                    .attr("height", SVG_SIZE[1]);
       
       updateData();
     } else {
