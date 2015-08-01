@@ -15,6 +15,9 @@ def make_soup(file_path):
     s = BeautifulSoup(html, "lxml")
     return s
 
+def de_money(money):
+  return money.replace("$", "").replace(",", "").replace("£", "")
+
 
 movies = []
 for filename in os.listdir("data"):
@@ -33,6 +36,7 @@ for filename in os.listdir("data"):
     gross = soup.find("h4", text="Gross:").next_sibling.strip() 
   except: 
     gross = "unknown"
+  gross = de_money(gross)
   record = {"title":title, "rating":rating, "date":date,
             "genres":[genre for genre in genres], "star":star, "gross":gross}
   movies.append(record)
