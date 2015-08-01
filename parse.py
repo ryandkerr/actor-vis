@@ -5,6 +5,7 @@
 from bs4 import BeautifulSoup
 import os
 import json
+import re
 
 # needed for checking if actor is star
 actor_name = "Tom Hanks"
@@ -15,8 +16,8 @@ def make_soup(file_path):
     s = BeautifulSoup(html, "lxml")
     return s
 
-def de_money(money):
-  return money.replace("$", "").replace(",", "").replace("£", "")
+# def de_money(money):
+  # return money.replace("$", "").replace(",", "")
 
 
 movies = []
@@ -32,11 +33,13 @@ for filename in os.listdir("data"):
   stars = map(lambda x:x.get_text(strip=True), stars)
   star = True if actor_name in stars else False
   gross = ""
-  try: 
-    gross = soup.find("h4", text="Gross:").next_sibling.strip() 
+  try:
+    gross = soup.find("h4", text="Gross:").next_sibling.strip()
+    gross = re.sub("\D", "", gross)
+    gross = int(gross)
   except: 
-    gross = "unknown"
-  gross = de_money(gross)
+    gross = 0
+  # gross = de_money(gross)
   record = {"title":title, "rating":rating, "date":date,
             "genres":[genre for genre in genres], "star":star, "gross":gross}
   movies.append(record)
