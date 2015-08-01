@@ -42,8 +42,8 @@ var yAxis = d3.svg.axis()
                .ticks(5)
                .orient("right");
 var grossScale = d3.scale.linear()
-                    .domain([0, 1000000000])
-                    .range([25, 1000])  // large numbers because of square root
+                    .domain([0, 10000000000])
+                    .range([25, 10000])  // large numbers because of square root
 
 
 // change dates from "YYYY-MM-DD" to js date objects
@@ -111,7 +111,26 @@ var actor_layout = function(data) {
                 return("lightgrey");
               }
             })
-            .attr("opacity", .50);
+            .attr("opacity", .50)
+            .on("click", function(d) {
+              console.log("Clicked", d.title);
+            })
+            .on("mouseover", function() {
+              d3.select(this)
+                 .transition()
+                 .duration(150)
+                 .attr("r", function(d) {
+                   return(Math.sqrt(grossScale(d.gross)) + 7);
+                 });
+            })
+            .on("mouseout", function() {
+              d3.select(this)
+                 .transition()
+                 .duration(150)
+                 .attr("r", function(d) {
+                   return(Math.sqrt(grossScale(d.gross)));
+                 })
+            });
 }; 
 
 var startHere = function() {
