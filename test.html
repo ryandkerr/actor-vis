@@ -61,11 +61,11 @@ var updateData = function() {
   actor_layout(TOM);
 };
 
+// creates actual d3/svg elements from data
 var actor_layout = function(data) {
-  var maxDay = Math.max.apply(Math, SELECTED_DATA.map(function(d) { 
-    return d.date }));
-  var minDay = Math.min.apply(Math, SELECTED_DATA.map(function(d) { 
-    return d.date }));
+  var maxDay = d3.max(data, function(d) { return(d.date) });
+  var minDay = d3.min(data, function(d) { return(d.date) });
+
   dateScale = d3.time.scale()
                       .domain([minDay, maxDay])
                       .range([25, SVG_SIZE[0] - 25]);
@@ -73,6 +73,7 @@ var actor_layout = function(data) {
                      .scale(dateScale)
                      .ticks(10);
 
+  // create axes
   actorSvg.append("g")
     .attr("class", "axis")
     .attr("transform", "translate(0," + (SVG_SIZE[1] - 25) + ")")
@@ -82,6 +83,19 @@ var actor_layout = function(data) {
            .attr("class", "axis")
            .attr("transform", "translate(" + (SVG_SIZE[0] - 25) + ", 0)")
            .call(yAxis);
+
+  // add circles for each movie
+  actorSvg.selectAll("circle")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d) {
+              return(dateScale(d.date))
+            })
+            .attr("cy", function(d) {
+              return(ratingScale(d.rating))
+            })
+            .attr("r", 10)
 }; 
 
 var startHere = function() {
