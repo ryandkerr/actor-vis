@@ -5,7 +5,12 @@
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="http://d3js.org/queue.v1.min.js"></script>
   <link rel="stylesheet" type="text/css" href="./libraries/bootstrap.min.css">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
 <style>
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
 .axis path,
 .axis line {
     fill: none;
@@ -14,7 +19,6 @@
 }
 
 .axis text {
-    font-family: sans-serif;
     font-size: 11px;
 }
 
@@ -33,7 +37,11 @@
 
 #tooltip text {
   font-size: 11px;
-  text-decoration: underline;
+}
+
+#tooltip .header {
+  font-size: 11px;
+  font-weight: bold;
 }
 </style>
 
@@ -91,10 +99,18 @@ var makeTooltip = function(circle, data) {
 
   tip.append("text")
     .text(function() {
-      return(data.title)
+      return(data.title);
     })
+    .attr("class", "header")
     .attr("x", xPosition - 55)
     .attr("y", yPosition - 65 - circle.attr("r"));
+
+  tip.append("text")
+    .text(function() {
+      return("Gross: " + data.gross);
+    })
+    .attr("x", xPosition - 55)
+    .attr("y", yPosition - 50 - circle.attr("r"));
 }
 
 var updateData = function() {
