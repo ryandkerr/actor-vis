@@ -71,6 +71,17 @@ var grossScale = d3.scale.linear()
                     .domain([0, 10000000000])
                     .range([50, 10000])  // large numbers because of square root
 
+var genreColor = d3.scale.ordinal()
+                    .domain(["default", "Comedy", "Drama", "Action", "Adventure",
+                             "Biography", "Animation", "Crime"])
+                    .range(["#777777",
+                            "#ff5858",
+                            "#a061f4",
+                            "#ffb358",
+                            "#ffb358",
+                            "#ffe255",
+                            "#fa5693",
+                            "#6490f3"])
 
 // change dates from "YYYY-MM-DD" to js date objects
 var parse_dates = function(data) {
@@ -94,8 +105,8 @@ var makeTooltip = function(circle, data) {
     .attr("y", yPosition - 85 - circle.attr("r"))
     .attr("width", 125)
     .attr("height", 75)
-    .attr("rx", 10)
-    .attr("ry", 10);
+    .attr("rx", 3)
+    .attr("ry", 3);
 
   tip.append("text")
     .text(function() {
@@ -107,10 +118,18 @@ var makeTooltip = function(circle, data) {
 
   tip.append("text")
     .text(function() {
-      return("Gross: " + data.gross);
+      return("Gross: $" + Math.round(data.gross/1000000) + "M");
     })
     .attr("x", xPosition - 55)
     .attr("y", yPosition - 50 - circle.attr("r"));
+
+  tip.append("text")
+    .text(function() {
+      return("Genre: " + data.genres[0])
+    })
+    .attr("x", xPosition - 55)
+    .attr("y", yPosition - 35 - circle.attr("r"));
+
 }
 
 var updateData = function() {
@@ -159,14 +178,16 @@ var actor_layout = function(data) {
               return(Math.sqrt(grossScale(d.gross)));
             })
             .attr("fill", function(d) {
-              if (d.gross == 0) {
-                console.log(d.title, "- missing gross");
-                return("red");
-              } else if (d.star) {
-                return("gold");
-              } else {
-                return("lightgrey");
-              }
+              return(genreColor(d.genres[0]));
+
+              // if (d.gross == 0) {
+              //   console.log(d.title, "- missing gross");
+              //   return("red");
+              // } else if (d.star) {
+              //   return("gold");
+              // } else {
+              //   return("silver");
+              // }
             })
             .attr("opacity", .50)
             .on("click", function(d) {
