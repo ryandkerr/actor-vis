@@ -30,6 +30,11 @@
   width:125;
   height:75;
 }
+
+#tooltip text {
+  font-size: 11px;
+  text-decoration: underline;
+}
 </style>
 
 </head>
@@ -68,6 +73,29 @@ var parse_dates = function(data) {
   }
   return(copy);
 };
+
+var makeTooltip = function(circle, data) {
+  var xPosition = circle.attr("cx");
+  var yPosition = circle.attr("cy");
+
+  var tip = actorSvg.append("g")
+              .attr("id", "tooltip");
+
+  tip.append("rect")
+    .attr("x", xPosition - 62)
+    .attr("y", yPosition - 85 - circle.attr("r"))
+    .attr("width", 125)
+    .attr("height", 75)
+    .attr("rx", 10)
+    .attr("ry", 10);
+
+  tip.append("text")
+    .text(function() {
+      return(data.title)
+    })
+    .attr("x", xPosition - 55)
+    .attr("y", yPosition - 65 - circle.attr("r"));
+}
 
 var updateData = function() {
   // TODO: change these values based on drop-down
@@ -138,26 +166,7 @@ var actor_layout = function(data) {
                    return(Math.sqrt(grossScale(d.gross)) + 7);
                  });
 
-              var xPosition = that.attr("cx");
-              var yPosition = that.attr("cy");
-              
-              var tip = actorSvg.append("g")
-                .attr("id", "tooltip");
-
-              tip.append("rect")
-                .attr("x", xPosition - 62)
-                .attr("y", yPosition - 85 - that.attr("r"))
-                .attr("width", 125)
-                .attr("height", 75)
-                .attr("rx", 10)
-                .attr("ry", 10);
-
-              tip.append("text")
-                .text(function() {
-                  return(d.title)
-                })
-                .attr("x", xPosition - 55)
-                .attr("y", yPosition - 65 - that.attr("r"));
+              makeTooltip(that, d);
             })
             .on("mouseout", function() {
               d3.select(this)
