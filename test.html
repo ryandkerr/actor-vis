@@ -24,6 +24,12 @@
   border-radius: 10px;
   /*stroke: none;*/
 }
+
+#tooltip rect {
+  fill:lightgrey;
+  width:125;
+  height:75;
+}
 </style>
 
 </head>
@@ -139,7 +145,6 @@ var actor_layout = function(data) {
                 .attr("id", "tooltip");
 
               tip.append("rect")
-                .attr("fill", "lightgrey")
                 .attr("x", xPosition - 62)
                 .attr("y", yPosition - 85 - that.attr("r"))
                 .attr("width", 125)
@@ -148,9 +153,11 @@ var actor_layout = function(data) {
                 .attr("ry", 10);
 
               tip.append("text")
-                  .text(function() {
-                    return(d.title)
-                  })
+                .text(function() {
+                  return(d.title)
+                })
+                .attr("x", xPosition - 55)
+                .attr("y", yPosition - 65 - that.attr("r"));
             })
             .on("mouseout", function() {
               d3.select(this)
