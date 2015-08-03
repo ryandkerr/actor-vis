@@ -147,50 +147,13 @@ var makeTooltip = function(circle, data) {
     .attr("class", "movie-info")
     .html(prettyGenres(data.genres));
 
-  $("#tooltip").css("left", xPosition - 47);
-  $("#tooltip").css("top", yPosition - $("#tooltip").height() - circle.attr("r") - 35);
-
-  // debugger;
-
-
-  // var tip = actorSvg.append("g")
-  //             .attr("id", "tooltip");
-
-  // tip.append("rect")
-  //   .attr("x", xPosition - 62)
-  //   .attr("y", yPosition - 85 - circle.attr("r"))
-  //   .attr("width", 125)
-  //   .attr("height", 75)
-  //   .attr("rx", 3)
-  //   .attr("ry", 3);
-
-  // tip.append("text")
-  //   .text(function() {
-  //     return(data.title);
-  //   })
-  //   .attr("class", "header")
-  //   .attr("x", xPosition - 55)
-  //   .attr("y", yPosition - 65 - circle.attr("r"));
-
-  // tip.append("text")
-  //   .text(function() {
-  //     return("Gross: $" + Math.round(data.gross/1000000) + "M");
-  //   })
-  //   .attr("x", xPosition - 55)
-  //   .attr("y", yPosition - 50 - circle.attr("r"));
-
-  // tip.append("text")
-  //   .text(function() {
-  //     return("Genre: " + data.genres[0])
-  //   })
-  //   .attr("x", xPosition - 55)
-  //   .attr("y", yPosition - 35 - circle.attr("r"));
-
+  var tipJq = $("#tooltip");
+  tipJq.css("left", xPosition - 47);
+  tipJq.css("top", yPosition - tipJq.height() - circle.attr("r") - 33);
 }
 
 var updateData = function() {
   // TODO: change these values based on drop-down
-  
 
   // pass on to next step
   actor_layout(TOM);
@@ -251,23 +214,16 @@ var actor_layout = function(data) {
             })
             .on("mouseover", function(d) {
               that = d3.select(this);
-                 
+
               that
-                 .transition()
-                 .duration(150)
-                 .attr("r", function(d) {
-                   return(Math.sqrt(grossScale(d.gross)) + 7);
-                 });
+                .attr("stroke", "black")
+                .attr("stroke-width", 2.5);
 
               makeTooltip(that, d);
             })
             .on("mouseout", function() {
               d3.select(this)
-                 .transition()
-                 .duration(150)
-                 .attr("r", function(d) {
-                   return(Math.sqrt(grossScale(d.gross)));
-                 });
+                 .attr("stroke-width", 0);
 
               d3.select("#tooltip").remove();
             });
