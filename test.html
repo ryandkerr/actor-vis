@@ -135,9 +135,6 @@ var makeTooltip = function(circle, data) {
   var tip = d3.select("#actor_vis").append("div")
     .attr("id", "tooltip");
 
-  $("#tooltip").css("left", xPosition - 47);
-  $("#tooltip").css("top", yPosition - 90 - circle.attr("r"));
-
   tip.append("div")
     .attr("id", "movie-title")
     .html(data.title);
@@ -150,6 +147,10 @@ var makeTooltip = function(circle, data) {
     .attr("class", "movie-info")
     .html(prettyGenres(data.genres));
 
+  $("#tooltip").css("left", xPosition - 47);
+  $("#tooltip").css("top", yPosition - $("#tooltip").height() - circle.attr("r") - 35);
+
+  // debugger;
 
 
   // var tip = actorSvg.append("g")
