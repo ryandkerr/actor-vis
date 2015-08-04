@@ -11,9 +11,20 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 
+
 .title {
   font-weight: bold;
   font-size: 30px;
+}
+
+.buttons {
+  text-align: right;
+  padding-top: 10px;
+}
+
+.buttons h4 {
+  display: inline-block;
+  padding-right: 5px;
 }
 
 .axis path,
@@ -73,8 +84,11 @@ body {
 <body>
 <div class="container">
   <div class="row">
-    <div class="col-sm-4 title"></div>
-    <div class="col-sm-4">    
+    <div class="col-sm-4 title">
+    </div>
+    <div class="col-sm-8 buttons">    
+      <h4>Color by: </h3>
+
       <div class="btn-group" role="group" id="button-color" aria-label="Color:">
         <div type="button" class="btn btn-default active" id="genre-button">Genre</div>
         <div type="button" class="btn btn-default" id="star-button">Star</div>
