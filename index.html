@@ -19,12 +19,13 @@ body {
 .axis path,
 .axis line {
     fill: none;
-    stroke: black;
+    stroke: #555;
     shape-rendering: crispEdges;
 }
 
 .axis text {
     font-size: 11px;
+    fill: #555;
 }
 
 #tooltip {
@@ -39,6 +40,7 @@ body {
   fill: black;
   fill-opacity: .75;
   border-radius: 2px;
+  z-index: 2;
   /*stroke: none;*/
 }
 
@@ -72,6 +74,12 @@ body {
 <div class="container">
   <div class="row">
     <div class="col-sm-4 title"></div>
+    <div class="col-sm-4">    
+      <div class="btn-group" role="group" id="button-color" aria-label="Color:">
+        <div type="button" class="btn btn-default active" id="genre-button">Genre</div>
+        <div type="button" class="btn btn-default" id="star-button">Star</div>
+      </div>
+    </div>
   </div>
   <div class="row">
     <div class= "col-sm-12" id="actor_vis"></div>
@@ -84,6 +92,7 @@ var TOM;
 var SELECTED_DATA;
 var SVG_SIZE = [$("#actor_vis").innerWidth(), 400];
 var dateScale;
+var colorScheme = "genre";
 var ratingScale = d3.scale.linear()
                      .domain([0.0, 10.0])
                      .range([SVG_SIZE[1] - 25, 25]);
@@ -179,6 +188,9 @@ var actor_layout = function(data) {
            .attr("transform", "translate(" + (SVG_SIZE[0] - 25) + ", 0)")
            .call(yAxis);
 
+  actorSvg.selectAll("circle")
+            .remove();
+
   // add circles for each movie
   actorSvg.selectAll("circle")
             .data(data)
@@ -194,16 +206,15 @@ var actor_layout = function(data) {
               return(Math.sqrt(grossScale(d.gross)));
             })
             .attr("fill", function(d) {
-              return(genreColor(d.genres[0]));
-
-              // if (d.gross == 0) {
-              //   console.log(d.title, "- missing gross");
-              //   return("red");
-              // } else if (d.star) {
-              //   return("gold");
-              // } else {
-              //   return("silver");
-              // }
+              if (colorScheme == "genre") {
+                return(genreColor(d.genres[0]));
+              } else {
+                if (d.star) {
+                  return("gold");
+                } else {
+                  return("silver");
+                }
+              }
             })
             .attr("opacity", .50)
             .on("click", function(d) {
@@ -252,7 +263,18 @@ var startHere = function() {
 startHere();
 
 // listener for select item change
-// $(".drop-down").change(updateData);
+$("#star-button").click(function() {
+  $("#star-button").toggleClass("active")
+  $("#genre-button").toggleClass("active")
+  colorScheme = "star"
+  updateData();
+})
+$("#genre-button").click(function() {
+  $("#star-button").toggleClass("active")
+  $("#genre-button").toggleClass("active")
+  colorScheme = "genre"
+  updateData();
+})
 
 </script>
 </body>
