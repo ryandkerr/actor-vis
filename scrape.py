@@ -6,7 +6,7 @@ from urllib2 import urlopen
 import re
 
 # classifiers for non-movies, not included in scraping
-not_movies = ["filming", "pre-production", "post-production", "TV", "Short", "Game"]
+not_movies = ["filming", "pre-production", "post-production", "Short", "Game", "Mini", "TV", "completed"]
 
 # define new ones for each actor
 actor_page = "http://www.imdb.com/name/nm0000158/?ref_=nv_sr_1"

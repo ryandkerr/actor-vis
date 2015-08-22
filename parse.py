@@ -26,6 +26,8 @@ for filename in os.listdir("data"):
   soup = make_soup("data/" + filename)
   title = soup.find("span", itemprop="name").get_text()
   rating = float(soup.find("span", itemprop="ratingValue").get_text())
+  num_ratings = soup.find("span", itemprop="ratingCount").get_text()
+  num_ratings = int(re.sub(",", "", num_ratings))
   date = soup.find("meta", itemprop="datePublished").get("content")
   genres = soup.find_all("span", itemprop="genre")
   genres = map(lambda x:x.get_text(), genres)
@@ -40,7 +42,7 @@ for filename in os.listdir("data"):
   except: 
     gross = 0
   # gross = de_money(gross)
-  record = {"title":title, "rating":rating, "date":date,
+  record = {"title":title, "rating":rating, "num_ratings":num_ratings, "date":date,
             "genres":[genre for genre in genres], "star":star, "gross":gross}
   movies.append(record)
 
