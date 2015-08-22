@@ -120,8 +120,8 @@ var yAxis = d3.svg.axis()
                .ticks(5)
                .orient("right");
 var grossScale = d3.scale.linear()
-                    .domain([0, 10000000000])
-                    .range([50, 10000])  // large numbers because of square root
+                    .domain([0, 1000000])
+                    .range([50, 500])  // large numbers because of square root
 
 var genreColor = d3.scale.ordinal()
                     .domain(["default", "Comedy", "Drama", "Action", "Adventure",
@@ -166,15 +166,19 @@ var makeTooltip = function(circle, data) {
 
   tip.append("div")
     .attr("class", "movie-info")
+    .html(new Date(data.date).getFullYear());
+
+  tip.append("div")
+    .attr("class", "movie-info")
     .html("Gross: $" + Math.round(data.gross/1000000) + "M");
 
   tip.append("div")
     .attr("class", "movie-info")
     .html(prettyGenres(data.genres));
 
-  var tipJq = $("#tooltip");
-  tipJq.css("left", xPosition - 47);
-  tipJq.css("top", yPosition - tipJq.height() - circle.attr("r") - 33);
+  var tipDiv = $("#tooltip");
+  tipDiv.css("left", xPosition - 47);
+  tipDiv.css("top", yPosition - tipDiv.height() - circle.attr("r") - 33);
 }
 
 var updateData = function() {
@@ -185,7 +189,7 @@ var updateData = function() {
 };
 
 // creates actual d3/svg elements from data
-var actor_layout = function(data) {
+var add_axes = function(data) {
   var maxDay = d3.max(data, function(d) { return(d.date) });
   var minDay = d3.min(data, function(d) { return(d.date) });
 
@@ -197,6 +201,9 @@ var actor_layout = function(data) {
                      .ticks(10);
 
   // create axes
+  d3.select(".axis")
+    .remove();
+
   actorSvg.append("g")
     .attr("class", "axis")
     .attr("transform", "translate(0," + (SVG_SIZE[1] - 25) + ")")
@@ -206,7 +213,10 @@ var actor_layout = function(data) {
            .attr("class", "axis")
            .attr("transform", "translate(" + (SVG_SIZE[0] - 25) + ", 0)")
            .call(yAxis);
+}
 
+
+var actor_layout = function(data) {
   actorSvg.selectAll("circle")
             .remove();
 
@@ -222,7 +232,7 @@ var actor_layout = function(data) {
               return(ratingScale(d.rating));
             })
             .attr("r", function(d) {
-              return(Math.sqrt(grossScale(d.gross)));
+              return(Math.sqrt(grossScale(d.num_ratings)));
             })
             .attr("fill", function(d) {
               if (colorScheme == "genre") {
@@ -272,6 +282,7 @@ var startHere = function() {
                     .attr("width", SVG_SIZE[0])
                     .attr("height", SVG_SIZE[1]);
       
+      add_axes(SELECTED_DATA);
       updateData();
     } else {
       console.log("error loading data");
@@ -283,16 +294,21 @@ startHere();
 
 // listener for select item change
 $("#star-button").click(function() {
-  $("#star-button").toggleClass("active")
-  $("#genre-button").toggleClass("active")
-  colorScheme = "star"
-  updateData();
+  if ($("#star-button").hasClass("active") != true) {
+    debugger;
+    $("#star-button").toggleClass("active")
+    $("#genre-button").toggleClass("active")
+    colorScheme = "star"
+    updateData();
+  }
 })
 $("#genre-button").click(function() {
-  $("#star-button").toggleClass("active")
-  $("#genre-button").toggleClass("active")
-  colorScheme = "genre"
-  updateData();
+  if ($("#genre-button").hasClass("active") != true) {
+    $("#star-button").toggleClass("active")
+    $("#genre-button").toggleClass("active")
+    colorScheme = "genre"
+    updateData();
+  }
 })
 
 </script>
