@@ -4,13 +4,15 @@
 from bs4 import BeautifulSoup
 from urllib2 import urlopen
 import re
+import os
 
 # classifiers for non-movies, not included in scraping
-not_movies = ["filming", "pre-production", "post-production", "Short", "Game", "Mini", "TV", "completed"]
+not_movies = ["filming", "pre-production", "post-production", "Short", "Game\)",
+              "Mini", "TV", "completed", "announced"]
 
-# define new ones for each actor
-actor_page = "http://www.imdb.com/name/nm0000158/?ref_=nv_sr_1"
-actor_name = "Tom Hanks"
+# define actors and IMDB urls
+actors = {"Tom Hanks": "http://www.imdb.com/name/nm0000158/?ref_=nv_sr_1",
+          "Jennifer Lawrence": "http://www.imdb.com/name/nm2225369/"}
 
 
 def make_soup(url):
@@ -20,7 +22,7 @@ def make_soup(url):
 
 def get_movie_links(actor_url):
     soup = make_soup(actor_url)
-    credits = soup.find_all("div", id=re.compile("^actor-"))
+    credits = soup.find_all("div", id=re.compile("^act"))
     movies = []
     for credit in credits:
         movie = True
@@ -32,8 +34,10 @@ def get_movie_links(actor_url):
             movies.append("http://www.imdb.com" + m)
     return movies
 
-actor_movies = get_movie_links(actor_page)
-
-for i, movie_link in enumerate(actor_movies):
-    with open("data/"+actor_name+str(i)+".txt", "wb") as f:
-        f.write(urlopen(movie_link).read())
+for actor in actors:
+    movies = get_movie_links(actors[actor])
+    if not os.path.exists("data/" + actor):
+        os.mkdir("data/" + actor)
+    for i, movie_link in enumerate(movies):
+        with open("data/" + actor + "/" + actor +str(i)+".txt", "wb") as f:
+            f.write(urlopen(movie_link).read())
