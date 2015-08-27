@@ -119,16 +119,15 @@ body {
 
 <script>
 var actorSvg;
-var TOM;
-// var CURRENT_ACTOR.data;
 var CURRENT_ACTOR = {"name": "",
                      "data": []};
-var SVG_SIZE = [$("#actor_vis").innerWidth(), 400];
+var SVG_SIZE = {"width": $("#actor_vis").innerWidth(), 
+                "height": 400};
 var dateScale;
 var colorScheme = "genre";
 var ratingScale = d3.scale.linear()
                      .domain([0.0, 10.0])
-                     .range([SVG_SIZE[1] - 25, 25]);
+                     .range([SVG_SIZE.height - 25, 25]);
 var yAxis = d3.svg.axis()
                .scale(ratingScale)
                .ticks(5)
@@ -198,30 +197,25 @@ var makeTooltip = function(circle, data) {
 
 
 var updateData = function() {
-  // TODO: change these values based on drop-down
   CURRENT_ACTOR.name = $(".actor-select").val();
   $(".title").text(CURRENT_ACTOR.name);  
-  console.log(CURRENT_ACTOR.name);
-
-
 
   d3.json("export/" + CURRENT_ACTOR.name + ".json", function(error, json) {
     if (error) return console.warn(error);
     CURRENT_ACTOR.data = parse_dates(json);
-    add_axes(CURRENT_ACTOR.data);
-    // pass on to next step
-    actor_layout(CURRENT_ACTOR.data);
+    addAxes(CURRENT_ACTOR.data);
+    actorLayout(CURRENT_ACTOR.data);  // pass on to next step
   });
 };
 
-// creates actual d3/svg elements from data
-var add_axes = function(data) {
+// creates actual d3/svg axes from data
+var addAxes = function(data) {
   var maxDay = d3.max(data, function(d) { return(d.date) });
   var minDay = d3.min(data, function(d) { return(d.date) });
 
   dateScale = d3.time.scale()
                       .domain([minDay, maxDay])
-                      .range([25, SVG_SIZE[0] - 25]);
+                      .range([25, SVG_SIZE.width - 25]);
   var xAxis = d3.svg.axis()
                      .scale(dateScale)
                      .ticks(10);
@@ -232,17 +226,17 @@ var add_axes = function(data) {
 
   actorSvg.append("g")
     .attr("class", "axis")
-    .attr("transform", "translate(0," + (SVG_SIZE[1] - 25) + ")")
+    .attr("transform", "translate(0," + (SVG_SIZE.height - 25) + ")")
     .call(xAxis);
 
   actorSvg.append("g")
            .attr("class", "axis")
-           .attr("transform", "translate(" + (SVG_SIZE[0] - 25) + ", 0)")
+           .attr("transform", "translate(" + (SVG_SIZE.width - 25) + ", 0)")
            .call(yAxis);
 }
 
 
-var actor_layout = function(data) {
+var actorLayout = function(data) {
   actorSvg.selectAll("circle")
             .remove();
 
@@ -272,9 +266,6 @@ var actor_layout = function(data) {
               }
             })
             .attr("opacity", .50)
-            .on("click", function(d) {
-              console.log("Clicked", d.title);
-            })
             .on("mouseover", function(d) {
               that = d3.select(this);
 
@@ -294,21 +285,16 @@ var actor_layout = function(data) {
 
 var startHere = function() {
   queue()
-    .defer(d3.json, "export/Jennifer Lawrence.json")
+    .defer(d3.json, "export/Tom Hanks.json")
     .await(initVis);
 
   function initVis(error, tom) {
     if (!error) {
-      TOM = tom;
-      // CURRENT_ACTOR.data = parse_dates(tom);
-      // $(".title").text("Tom Hanks");
-
       actorSvg = d3.select("#actor_vis").append("svg")
                     .attr("id", "actorSvg")
-                    .attr("width", SVG_SIZE[0])
-                    .attr("height", SVG_SIZE[1]);
+                    .attr("width", SVG_SIZE.width)
+                    .attr("height", SVG_SIZE.height);
       
-      // add_axes(CURRENT_ACTOR.data);
       updateData();
     } else {
       console.warn("error loading data");
@@ -321,7 +307,6 @@ startHere();
 // listener for select item change
 $("#star-button").click(function() {
   if ($("#star-button").hasClass("active") == false) {
-    debugger;
     $("#star-button").toggleClass("active")
     $("#genre-button").toggleClass("active")
     colorScheme = "star"
