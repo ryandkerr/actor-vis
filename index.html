@@ -91,7 +91,19 @@ body {
   <div class="row">
     <div class="col-sm-4 title">
     </div>
-    <div class="col-sm-8 buttons">    
+    <div class="col-sm-4">
+      <select class="form-control actor-select">
+        <option value="Anne Hathaway">Anne Hathaway</option>
+        <option value="Chris Pratt">Chris Pratt</option>
+        <option value="Harrison Ford">Harrison Ford</option>
+        <option value="Jennifer Lawrence">Jennifer Lawrence</option>
+        <option value="Michael Caine">Michael Caine</option>
+        <option value="Morgan Freeman">Morgan Freeman</option>
+        <option value="Tom Hanks" selected>Tom Hanks</option>
+
+      </select>
+    </div>
+    <div class="col-sm-4 buttons">    
       <h4>Color by: </h3>
 
       <div class="btn-group" role="group" id="button-color" aria-label="Color:">
@@ -108,7 +120,9 @@ body {
 <script>
 var actorSvg;
 var TOM;
-var SELECTED_DATA;
+// var CURRENT_ACTOR.data;
+var CURRENT_ACTOR = {"name": "",
+                     "data": []};
 var SVG_SIZE = [$("#actor_vis").innerWidth(), 400];
 var dateScale;
 var colorScheme = "genre";
@@ -124,16 +138,17 @@ var grossScale = d3.scale.linear()
                     .range([50, 500])  // large numbers because of square root
 
 var genreColor = d3.scale.ordinal()
-                    .domain(["default", "Comedy", "Drama", "Action", "Adventure",
-                             "Biography", "Animation", "Crime"])
-                    .range(["#777777",
-                            "#ff5858",
-                            "#a061f4",
-                            "#ffb358",
-                            "#ffb358",
-                            "#ffe255",
-                            "#fa5693",
-                            "#6490f3"])
+                    .domain(["Comedy", "Drama", "Action", "Adventure",
+                             "Biography", "Animation", "Crime", "Horror", "Mystery"])
+                    .range(["#d62728", // Comedy
+                            "#9467bd", // Drama
+                            "#ff7f0e", // Action
+                            "#ff7f0e", // Adventure
+                            "#8c564b", // Biography
+                            "#e377c2", // Animation
+                            "#7f7f7f", // Crime
+                            "#7f7f7f", // Horror
+                            "#7f7f7f"]) // Mystery
 
 // change dates from "YYYY-MM-DD" to js date objects
 var parse_dates = function(data) {
@@ -181,11 +196,22 @@ var makeTooltip = function(circle, data) {
   tipDiv.css("top", yPosition - tipDiv.height() - circle.attr("r") - 33);
 }
 
+
 var updateData = function() {
   // TODO: change these values based on drop-down
+  CURRENT_ACTOR.name = $(".actor-select").val();
+  $(".title").text(CURRENT_ACTOR.name);  
+  console.log(CURRENT_ACTOR.name);
 
-  // pass on to next step
-  actor_layout(TOM);
+
+
+  d3.json("export/" + CURRENT_ACTOR.name + ".json", function(error, json) {
+    if (error) return console.warn(error);
+    CURRENT_ACTOR.data = parse_dates(json);
+    add_axes(CURRENT_ACTOR.data);
+    // pass on to next step
+    actor_layout(CURRENT_ACTOR.data);
+  });
 };
 
 // creates actual d3/svg elements from data
@@ -201,7 +227,7 @@ var add_axes = function(data) {
                      .ticks(10);
 
   // create axes
-  d3.select(".axis")
+  d3.selectAll(".axis")
     .remove();
 
   actorSvg.append("g")
@@ -268,24 +294,24 @@ var actor_layout = function(data) {
 
 var startHere = function() {
   queue()
-    .defer(d3.json, "export/tom_hanks.json")
+    .defer(d3.json, "export/Jennifer Lawrence.json")
     .await(initVis);
 
   function initVis(error, tom) {
     if (!error) {
       TOM = tom;
-      SELECTED_DATA = parse_dates(tom);
-      $(".title").text("Tom Hanks");
+      // CURRENT_ACTOR.data = parse_dates(tom);
+      // $(".title").text("Tom Hanks");
 
       actorSvg = d3.select("#actor_vis").append("svg")
                     .attr("id", "actorSvg")
                     .attr("width", SVG_SIZE[0])
                     .attr("height", SVG_SIZE[1]);
       
-      add_axes(SELECTED_DATA);
+      // add_axes(CURRENT_ACTOR.data);
       updateData();
     } else {
-      console.log("error loading data");
+      console.warn("error loading data");
     }
   }
 };
@@ -294,7 +320,7 @@ startHere();
 
 // listener for select item change
 $("#star-button").click(function() {
-  if ($("#star-button").hasClass("active") != true) {
+  if ($("#star-button").hasClass("active") == false) {
     debugger;
     $("#star-button").toggleClass("active")
     $("#genre-button").toggleClass("active")
@@ -303,13 +329,15 @@ $("#star-button").click(function() {
   }
 })
 $("#genre-button").click(function() {
-  if ($("#genre-button").hasClass("active") != true) {
+  if ($("#genre-button").hasClass("active") == false) {
     $("#star-button").toggleClass("active")
     $("#genre-button").toggleClass("active")
     colorScheme = "genre"
     updateData();
   }
 })
+
+$(".actor-select").change(updateData);
 
 </script>
 </body>
