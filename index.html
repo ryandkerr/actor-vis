@@ -11,7 +11,6 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 
-
 .title {
   font-weight: bold;
   font-size: 30px;
@@ -29,14 +28,18 @@ body {
 
 .axis path,
 .axis line {
-    fill: none;
-    stroke: #555;
-    shape-rendering: crispEdges;
+  fill: none;
+  stroke: #555;
+  shape-rendering: crispEdges;
 }
 
 .axis text {
-    font-size: 11px;
-    fill: #555;
+  font-size: 11px;
+  fill: #555;
+}
+
+.axis-title {
+  font-weight: bold;
 }
 
 #tooltip {
@@ -78,7 +81,6 @@ body {
   font-weight: bold;
 }
 </style>
-
 </head>
 
 <body>
@@ -100,12 +102,10 @@ body {
         <option value="Michael Caine">Michael Caine</option>
         <option value="Morgan Freeman">Morgan Freeman</option>
         <option value="Tom Hanks" selected>Tom Hanks</option>
-
       </select>
     </div>
     <div class="col-sm-4 buttons">    
       <h4>Color by: </h3>
-
       <div class="btn-group" role="group" id="button-color" aria-label="Color:">
         <div type="button" class="btn btn-default active" id="genre-button">Genre</div>
         <div type="button" class="btn btn-default" id="star-button">Starring</div>
@@ -121,13 +121,17 @@ body {
 var actorSvg;
 var CURRENT_ACTOR = {"name": "",
                      "data": []};
-var SVG_SIZE = {"width": $("#actor_vis").innerWidth(), 
+var SVG_SIZE = {"width" : $("#actor_vis").innerWidth(), 
                 "height": 400};
+var MARGIN = {"top"   : 35,
+              "bottom": 35,
+              "left"  : 35,
+              "right" : 35}
 var dateScale;
 var colorScheme = "genre";
 var ratingScale = d3.scale.linear()
                      .domain([0.0, 10.0])
-                     .range([SVG_SIZE.height - 25, 25]);
+                     .range([SVG_SIZE.height - MARGIN.bottom , MARGIN.right]);
 var yAxis = d3.svg.axis()
                .scale(ratingScale)
                .ticks(5)
@@ -135,10 +139,10 @@ var yAxis = d3.svg.axis()
 var grossScale = d3.scale.linear()
                     .domain([0, 1000000])
                     .range([50, 500])  // large numbers because of square root
-
 var genreColor = d3.scale.ordinal()
                     .domain(["Comedy", "Drama", "Action", "Adventure",
-                             "Biography", "Animation", "Crime", "Horror", "Mystery"])
+                             "Biography", "Animation", "Crime", "Horror",
+                             "Mystery"])
                     .range(["#d62728", // Comedy
                             "#9467bd", // Drama
                             "#ff7f0e", // Action
@@ -150,7 +154,7 @@ var genreColor = d3.scale.ordinal()
                             "#7f7f7f"]) // Mystery
 
 // change dates from "YYYY-MM-DD" to js date objects
-var parse_dates = function(data) {
+var parseDates = function(data) {
   var copy = data;
   for (var i in data) {
     d = data[i].date.replace(/-/g, "/");
@@ -165,7 +169,7 @@ var prettyGenres = function(genres) {
     pretty += ", " + genres[i];
   }
   return(pretty);
-}
+};
 
 var makeTooltip = function(circle, data) {
   var xPosition = parseFloat(circle.attr("cx"));
@@ -193,7 +197,7 @@ var makeTooltip = function(circle, data) {
   var tipDiv = $("#tooltip");
   tipDiv.css("left", xPosition - 47);
   tipDiv.css("top", yPosition - tipDiv.height() - circle.attr("r") - 33);
-}
+};
 
 
 var updateData = function() {
@@ -202,7 +206,7 @@ var updateData = function() {
 
   d3.json("export/" + CURRENT_ACTOR.name + ".json", function(error, json) {
     if (error) return console.warn(error);
-    CURRENT_ACTOR.data = parse_dates(json);
+    CURRENT_ACTOR.data = parseDates(json);
     addAxes(CURRENT_ACTOR.data);
     actorLayout(CURRENT_ACTOR.data);  // pass on to next step
   });
@@ -210,12 +214,13 @@ var updateData = function() {
 
 // creates actual d3/svg axes from data
 var addAxes = function(data) {
-  var maxDay = d3.max(data, function(d) { return(d.date) });
+  var maxDay = Date.now();
+  // var maxDay = d3.max(data, function(d) { return(d.date) });
   var minDay = d3.min(data, function(d) { return(d.date) });
 
   dateScale = d3.time.scale()
                       .domain([minDay, maxDay])
-                      .range([25, SVG_SIZE.width - 25]);
+                      .range([MARGIN.top, SVG_SIZE.width - MARGIN.left]);
   var xAxis = d3.svg.axis()
                      .scale(dateScale)
                      .ticks(10);
@@ -226,13 +231,18 @@ var addAxes = function(data) {
 
   actorSvg.append("g")
     .attr("class", "axis")
-    .attr("transform", "translate(0," + (SVG_SIZE.height - 25) + ")")
+    .attr("transform", "translate(0," + (SVG_SIZE.height - MARGIN.top) + ")")
     .call(xAxis);
 
   actorSvg.append("g")
-           .attr("class", "axis")
-           .attr("transform", "translate(" + (SVG_SIZE.width - 25) + ", 0)")
-           .call(yAxis);
+    .attr("class", "axis")
+    .attr("transform", "translate(" + (SVG_SIZE.width - MARGIN.left) + ", 0)")
+    .call(yAxis)
+    .append("text")
+    .text("IMDB Rating")
+    .attr("transform", "translate(25, " + (SVG_SIZE.height/2 - 30) + ") rotate(90)")
+    .attr("class", "axis-title");
+;
 }
 
 
@@ -281,7 +291,8 @@ var actorLayout = function(data) {
 
               d3.select("#tooltip").remove();
             });
-}; 
+};
+
 
 var startHere = function() {
   queue()
@@ -303,6 +314,8 @@ var startHere = function() {
 };
 
 startHere();
+
+
 
 // listener for select item change
 $("#star-button").click(function() {
